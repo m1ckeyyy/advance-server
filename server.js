@@ -47,7 +47,7 @@ app.post("/admin-login", (req, res) => {
 		// console.log(req.body);
 		Admin.findOne({ email }).then((admin) => {
 			if (!admin) {
-				return res.status(404).send("Invalid email or password");
+				return res.status(401).send("Invalid email or password");
 			}
 			bcrypt.compare(password, admin.password).then((isMatching) => {
 				if (isMatching) {
