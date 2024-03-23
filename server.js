@@ -6,10 +6,12 @@ const Offer = require("./offerSchema");
 const Admin = require("./adminSchema");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const session = require("express-session");
 
 require("dotenv").config(); //.env for encrypting cookies
 const uri = process.env.MONGO_URI;
 // console.log(Admin);
+
 app.use(express.json());
 app.use(
 	cors({
@@ -27,8 +29,15 @@ app.use(
 // 	next();
 // });
 
+// app.use(
+// 	session({
+// 		secret: "mysdfdsfsdsfdhoewfhoewrwesd23344",
+// 		cookie: { maxAge: 999999999 },
+// 		resave: false,
+// 		saveUninitialized: true,
+// 	})
+// );
 //DB
-
 mongoose.set("strictQuery", false); //supress warning
 mongoose
 	.connect(uri)
@@ -58,8 +67,11 @@ app.post("/admin-login", (req, res) => {
 						process.env.ACCESS_TOKEN_SECRET
 					);
 					res.cookie("access_token", accessToken, {
-						httpOnly: false,
-						secure: false,
+						// httpOnly: false,
+						secure: true,
+
+						maxAge: 9999999999,
+						expires: new Date(Date.now() + 9999999999),
 					});
 					console.log("accessToken: ", accessToken);
 					res.status(200).send({ message: "Admin verified" });
