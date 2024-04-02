@@ -2,11 +2,13 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
 const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
 const Offer = require("./offerSchema");
 const Admin = require("./adminSchema");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
+const Cookies = require("js-cookie");
 
 require("dotenv").config(); //.env for encrypting cookies
 const uri = process.env.MONGO_URI;
@@ -20,6 +22,7 @@ app.use(
 		credentials: true,
 	})
 );
+app.use(cookieParser());
 // app.use((req, res, next) => {
 // 	res.set("Access-Control-Allow-Origin", "http://127.0.0.1:3000"); //https://qhc5nx-5173.preview.csb.app
 // 	// res.set('Access-Control-Allow-Origin', 'http://localhost:3000'); //https://qhc5nx-5173.preview.csb.app
@@ -45,6 +48,7 @@ mongoose
 	.catch((error) => console.error(error));
 
 app.get("/", (req, res) => {
+	// res.cookie("a", "b");
 	// const admins = await Admin.find();
 	// console.log("Admins: ", admins);
 	res.send("Welcome");
@@ -64,15 +68,19 @@ app.post("/admin-login", (req, res) => {
 					console.log("matching!");
 					const accessToken = jwt.sign(
 						{ email },
-						process.env.ACCESS_TOKEN_SECRET
+						process.env.ACCESS_TOKEN_SECRET,
+						{ expiresIn: "2 days" }
 					);
 					res.cookie("access_token", accessToken, {
-						// httpOnly: false,
-						secure: true,
-
-						maxAge: 9999999999,
-						expires: new Date(Date.now() + 9999999999),
+						httpOnly: false,
+						secure: false,
+						maxAge: 99999,
+						// expires: new Date(Date.now() + 9999999999),
 					});
+					// Cookies.set("access_token", accessToken, { expires: 7 });
+					// Cookies.set("name", "value", { expires: 7 });
+					// res.cookie("aaaa", "aaaaaaaa", { maxAge: 999999 });
+
 					console.log("accessToken: ", accessToken);
 					res.status(200).send({ message: "Admin verified" });
 				} else {
