@@ -53,6 +53,15 @@ app.get("/", (req, res) => {
 	// console.log("Admins: ", admins);
 	res.send("Welcome");
 });
+app.post("/auth", (req, res) => {
+	// res.cookie("a", "b");
+	// const admins = await Admin.find();
+
+	console.log("req:  ", req.body);
+	console.log("RRR:", req.cookies);
+	const a = req.cookies;
+	res.send(a);
+});
 app.post("/admin-login", (req, res) => {
 	try {
 		let { email, password } = req.body;
@@ -71,18 +80,20 @@ app.post("/admin-login", (req, res) => {
 						process.env.ACCESS_TOKEN_SECRET,
 						{ expiresIn: "2 days" }
 					);
-					res.cookie("access_token", accessToken, {
-						httpOnly: false,
-						secure: false,
-						maxAge: 99999,
-						// expires: new Date(Date.now() + 9999999999),
-					});
-					// Cookies.set("access_token", accessToken, { expires: 7 });
-					// Cookies.set("name", "value", { expires: 7 });
-					// res.cookie("aaaa", "aaaaaaaa", { maxAge: 999999 });
+					// res.cookie("access_token", accessToken, {
+					// 	httpOnly: false,
+					// 	secure: false,
+					// 	//maxAge: 99999,
+					// 	expires: new Date(Date.now() + 9999999999),
+					// });
 
 					console.log("accessToken: ", accessToken);
-					res.status(200).send({ message: "Admin verified" });
+
+					res.cookie("cookieName", 5, { expiresIn: 11000, priority: "high" });
+
+					res
+						.status(200)
+						.send({ message: "Admin verified", access_token: accessToken });
 				} else {
 					console.log("not matching :(");
 					res.status(401).send({
