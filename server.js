@@ -36,7 +36,7 @@ app.use(cookieParser());
 // 	session({
 // 		secret: "mysdfdsfsdsfdhoewfhoewrwesd23344",
 // 		cookie: { maxAge: 999999999 },
-// 		resave: false,
+// 		resave: true,
 // 		saveUninitialized: true,
 // 	})
 // );
@@ -80,16 +80,13 @@ app.post("/admin-login", (req, res) => {
 						process.env.ACCESS_TOKEN_SECRET,
 						{ expiresIn: "2 days" }
 					);
-					// res.cookie("access_token", accessToken, {
-					// 	httpOnly: false,
-					// 	secure: false,
-					// 	//maxAge: 99999,
-					// 	expires: new Date(Date.now() + 9999999999),
-					// });
 
-					console.log("accessToken: ", accessToken);
-
-					res.cookie("cookieName", 5, { expiresIn: 11000, priority: "high" });
+					res.cookie("cookieName", 5, {
+						expires: new Date(Date.now() + 9999999),
+						maxAge: 9999999,
+						httpOnly: false,
+						//domain: "localhost2",
+					});
 
 					res
 						.status(200)
