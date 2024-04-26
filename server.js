@@ -65,15 +65,13 @@ app.post("/auth", (req, res) => {
 app.post("/admin-login", (req, res) => {
 	try {
 		let { email, password } = req.body;
-		// email = email.toLowerCase();
-		// console.log(req.body);
+		email = email.toLowerCase();
 		Admin.findOne({ email }).then((admin) => {
 			if (!admin) {
 				return res.status(401).send("Invalid email or password");
 			}
 			bcrypt.compare(password, admin.password).then((isMatching) => {
 				if (isMatching) {
-					// password = admin.password;
 					console.log("matching!");
 					const accessToken = jwt.sign(
 						{ email },
@@ -81,16 +79,13 @@ app.post("/admin-login", (req, res) => {
 						{ expiresIn: "2 days" }
 					);
 
-					res.cookie("cookieName", 5, {
+					res.cookie("access_token", accessToken, {
 						expires: new Date(Date.now() + 9999999),
 						maxAge: 9999999,
 						httpOnly: false,
-						//domain: "localhost2",
 					});
 
-					res
-						.status(200)
-						.send({ message: "Admin verified", access_token: accessToken });
+					res.status(200).send({ message: "Admin verified" });
 				} else {
 					console.log("not matching :(");
 					res.status(401).send({
@@ -102,40 +97,7 @@ app.post("/admin-login", (req, res) => {
 	} catch (e) {
 		res.status(500).send({ message: "An error occured" });
 	}
-	// res.status(200).send("End of login query");
 });
-
-// app.post("/admin-register", (req, res) => {
-// 	let { email, password } = req.body;
-// 	// email = email.toLowerCase();
-// 	const newAdmin = new Admin({ email, password });
-// 	console.log("server.js,/register,newAdmin: ", newAdmin);
-// 	// const validationError = newAdmin.validateSync({ email, password });
-
-// 	// if (validationError) {
-// 	//   const { message } = validationError.errors.password || validationError.errors.email;
-// 	//   console.log(message);
-// 	//   return res.status(400).send({ error: message });
-// 	// }
-// 	Admin.findOne({ email }).then((user) => {
-// 		if (user) {
-// 			console.log("There is already a user with that email");
-// 			return res
-// 				.status(409)
-// 				.send({ error: "There is already a user with that email" });
-// 		}
-// 		newAdmin.save();
-// 		// 	(error) => {
-// 		// 	if (error) {
-// 		// 		console.log(error);
-// 		// 		res.status(500).send("Error saving user to database");
-// 		// 	} else {
-// 		// 		console.log("addmin regisstered [server]");
-// 		// 		res.status(200).send({ message: "registered new admin" });
-// 		// 	}
-// 		// }
-// 	});
-// });
 
 app.listen(4000, () => {
 	console.log("Connected to port 4000");
