@@ -23,23 +23,6 @@ app.use(
 	})
 );
 app.use(cookieParser());
-// app.use((req, res, next) => {
-// 	res.set("Access-Control-Allow-Origin", "http://127.0.0.1:3000"); //https://qhc5nx-5173.preview.csb.app
-// 	// res.set('Access-Control-Allow-Origin', 'http://localhost:3000'); //https://qhc5nx-5173.preview.csb.app
-// 	res.setHeader("Access-Control-Allow-Credentials", true);
-// 	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-// 	res.setHeader("Access-Control-Allow-Headers", "Authorization");
-// 	next();
-// });
-
-// app.use(
-// 	session({
-// 		secret: "mysdfdsfsdsfdhoewfhoewrwesd23344",
-// 		cookie: { maxAge: 999999999 },
-// 		resave: true,
-// 		saveUninitialized: true,
-// 	})
-// );
 //DB
 mongoose.set("strictQuery", false); //supress warning
 mongoose
@@ -47,20 +30,23 @@ mongoose
 	.then(() => console.log("Successfully connected to MongoDB"))
 	.catch((error) => console.error(error));
 
-app.get("/", (req, res) => {
-	// res.cookie("a", "b");
-	// const admins = await Admin.find();
-	// console.log("Admins: ", admins);
-	res.send("Welcome");
-});
+// app.get("/", (req, res) => {
+// 	res.send("Welcome");
+// });
 app.post("/auth", (req, res) => {
-	// res.cookie("a", "b");
-	// const admins = await Admin.find();
-
-	console.log("req:  ", req.body);
-	console.log("RRR:", req.cookies);
-	const a = req.cookies;
-	res.send(a);
+	console.log("RRR:", req.cookies.access_token);
+	const token = req.cookies.access_token;
+	if (!token) return res.status(401).send({ message: "Token is missing" });
+	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+		if (err) {
+			console.log("token: ", token, "jwt verifcation ERROR: ");
+			return res.status(403);
+		}
+		console.log(`${user.email} successfully verified with JWT`);
+		return res.status(200).send({
+			message: `User was verified, grant access to protected routes`,
+		});
+	});
 });
 app.post("/admin-login", (req, res) => {
 	try {
@@ -72,7 +58,7 @@ app.post("/admin-login", (req, res) => {
 			}
 			bcrypt.compare(password, admin.password).then((isMatching) => {
 				if (isMatching) {
-					console.log("matching!");
+					console.log("credentials validated");
 					const accessToken = jwt.sign(
 						{ email },
 						process.env.ACCESS_TOKEN_SECRET,
