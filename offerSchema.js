@@ -4,8 +4,8 @@ const offerSchema = new mongoose.Schema({
 	numer_kontaktowy: String,
 	tytul: String,
 	opis: String,
-	cena: Number,
-	metraz: Number,
+	cena: String,
+	metraz: String,
 	zdjecia: Array,
 	liczba_pokoi: String,
 	pietro: String,
@@ -18,6 +18,7 @@ const offerSchema = new mongoose.Schema({
 	forma_wlasnosci: String,
 	zabezpieczenia: String,
 	wyposazenie: String,
+	klimatyzacja: String,
 });
 
 const Offer = mongoose.model("Offer", offerSchema);

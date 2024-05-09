@@ -8,7 +8,7 @@ const Admin = require("./adminSchema");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
-const Cookies = require("js-cookie");
+//const Cookies = require("js-cookie");
 
 require("dotenv").config(); //.env for encrypting cookies
 const uri = process.env.MONGO_URI;
@@ -84,6 +84,12 @@ app.post("/admin-login", (req, res) => {
 		res.status(500).send({ message: "An error occured" });
 	}
 });
+
+app.post("/upload-offer", (req, res) => {
+	const { offer } = req.body;
+	const newOffer = new Offer({ ...offer });
+});
+//app.post('/edit-offer')
 
 app.listen(4000, () => {
 	console.log("Connected to port 4000");
