@@ -33,21 +33,7 @@ mongoose
 // app.get("/", (req, res) => {
 // 	res.send("Welcome");
 // });
-app.post("/auth", (req, res) => {
-	console.log("RRR:", req.cookies.access_token);
-	const token = req.cookies.access_token;
-	if (!token) return res.status(401).send({ message: "Token is missing" });
-	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-		if (err) {
-			console.log("token: ", token, "jwt verifcation ERROR: ");
-			return res.status(403);
-		}
-		console.log(`${user.email} successfully verified with JWT`);
-		return res.status(200).send({
-			message: `User was verified, grant access to protected routes`,
-		});
-	});
-});
+
 app.post("/admin-login", (req, res) => {
 	try {
 		let { email, password } = req.body;
@@ -85,12 +71,29 @@ app.post("/admin-login", (req, res) => {
 	}
 });
 
-app.post("/upload-offer", (req, res) => {
+app.post("/upload-offer", authMiddleware, (req, res) => {
 	const { offer } = req.body;
 	const newOffer = new Offer({ ...offer });
+	console.log(offer); //json
 });
 //app.post('/edit-offer')
 
+app.post("/auth", authMiddleware, (req, res) => {
+	return res.status(200).send({
+		message: `User was verified, grant access to protected routes`,
+	});
+});
+
+function authMiddleware(req, res, next) {
+	const token = req.cookies.access_token;
+	if (!token) return res.status(401).send({ message: "Token is missing" });
+
+	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+		if (err) return res.status(403);
+		console.log(`${user.email} successfully verified with JWT`);
+		return next();
+	});
+}
 app.listen(4000, () => {
 	console.log("Connected to port 4000");
 });
