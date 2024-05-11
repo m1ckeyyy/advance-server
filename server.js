@@ -71,20 +71,57 @@ app.post("/admin-login", (req, res) => {
 	}
 });
 
-app.post("/upload-offer", authMiddleware, (req, res) => {
-	const { offer } = req.body;
-	const newOffer = new Offer({ ...offer });
-	console.log(offer); //json
+app.post("/upload-offer", authMiddleware, async (req, res) => {
+	try {
+		const { offer } = req.body;
+		const id = offer.id;
+
+		const existingOffer = await Offer.findOne({ id });
+		if (existingOffer) {
+			return res
+				.status(400)
+				.send({ message: "Offer with this ID already exists" });
+		}
+
+		const newOffer = await Offer.create(offer);
+		console.log("New offer created", newOffer);
+
+		return res.status(201).send({ message: "New offer created" });
+	} catch (e) {
+		console.log("4");
+
+		return res.status(500).send({ message: "Something went wrong" });
+	}
+	// Offer.findOne({ id }).then((offer) => {
+	// 	if (offer) {
+	// 		console.log("Offer with this ID already exists");
+	// 		return res
+	// 			.status(409)
+	// 			.send({ error: "Offer with this ID already exists" });
+	// 	}
+	// 	newOffer.save((error) => {
+	// 		if (error) {
+	// 			console.log("Error saving offer to DB");
+	// 			res.status(500).send("Error saving offer to DB");
+	// 		} else {
+	// 			console.log("saved offer successfully");
+	// 			res.status(200).send({
+	// 				message: `Successfully added new offer`,
+	// 			});
+	// 		}
+	// 	});
+	// });
 });
 //app.post('/edit-offer')
 
 app.post("/auth", authMiddleware, (req, res) => {
-	return res.status(200).send({
+	res.status(200).send({
 		message: `User was verified, grant access to protected routes`,
 	});
 });
 
 function authMiddleware(req, res, next) {
+	// console.log("1. authMiddleware");
 	const token = req.cookies.access_token;
 	if (!token) return res.status(401).send({ message: "Token is missing" });
 

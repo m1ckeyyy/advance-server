@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const offerSchema = new mongoose.Schema({
-	id: String,
+	id: { type: String, required: true },
 	numer_kontaktowy: String,
 	tytul: String,
 	opis: String,
